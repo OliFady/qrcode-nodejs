@@ -12,6 +12,14 @@ const __filename = fileURLToPath(import.meta.url);
 const app = express();
 const __dirname = path.dirname(__filename);
 const qr = new QrCode();
+const Schema = mongoose.Schema;
+
+const UserSchema = new Schema({
+  name: String,
+  attendance: Number,
+});
+
+const User = mongoose.model("User", UserSchema);
 
 if (process.env.NODE_ENV !== "production") {
   dotenv.config();
@@ -63,6 +71,15 @@ app.get("/", express.static(path.join(__dirname, "./public")));
 app.post("/", upload.single("file"), async (req, res) => {
   await createTempPath(req);
   const data = await readQRCode("./uploads/image.jpg");
+  const updated = await User.findOneAndUpdate(
+    { name: data },
+    {
+      $inc: { attendance: 1 },
+    },
+    { new: true }
+  );
+  console.log(updated);
+
   res.status(200).contentType("text/plain").end(data);
 });
 
