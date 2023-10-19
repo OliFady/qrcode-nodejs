@@ -1,5 +1,54 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+.custom-file-input::-webkit-file-upload-button {
+  visibility: hidden;
+}
+.custom-file-input::before {
+  content: 'Upload QR Code';
+  display: inline-block;
+  background: linear-gradient(top, #f9f9f9, #e3e3e3);
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 5px 8px;
+  outline: none;
+  white-space: nowrap;
+  cursor: pointer;
+  text-shadow: 1px 1px #fff;
+  font-weight: 700;
+  font-size: 10pt;
+}
+.custom-file-input:hover::before {
+  border-color: black;
+}
+.custom-file-input:active::before {
+  background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+}
+.form-submit-button {
+background: green;
+padding: 10px;
+color: #fff;
+border: 1px solid #eee;
+border-radius: 10px;
+box-shadow: 5px 5px 5px #eee;
+text-shadow: none;
+}
+.form-submit-button:hover {
+background: #016ABC;
+color: #fff;
+border: 1px solid #eee;
+border-radius: 20px;
+box-shadow: 5px 5px 5px #eee;
+text-shadow: none;
+}
+</style>
+</head>
+<body>
 <form method="post" enctype="multipart/form-data" action="/">
-    <input type="file" name="file" accept="image/*" 
+    <input type="file" name="file" class="custom-file-input" accept="image/*" 
     capture >
-    <input type="submit" value="Submit">
+    <input type="submit" class="form-submit-button" value="Submit">
 </form>
+</body>
+</html>
