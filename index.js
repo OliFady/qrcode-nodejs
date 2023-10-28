@@ -59,18 +59,27 @@ const readQRCode = async (filePath) => {
 
 const createTempPath = async (req) => {
   const tempPath = req.file.path;
-  const targetPath = path.join(__dirname, "/uploads/image.jpg");
+  const targetPath = path.join(__dirname, "/uploads/image.png");
 
   fs.rename(tempPath, targetPath, (err) => {
     if (err) return handleError(err, res);
   });
 };
 
-app.get("/", express.static(path.join(__dirname, "./public")));
+app.use(express.static(path.join(__dirname, "./public")));
+
+app.get("/", (req, res) => {
+  res.sendFile("index.html");
+});
+
+app.get("/api", async (req, res) => {
+  const data = await User.find({ name: data });
+  res.send(data);
+});
 
 app.post("/", upload.single("file"), async (req, res) => {
   await createTempPath(req);
-  const data = await readQRCode("./uploads/image.jpg");
+  const data = await readQRCode("./uploads/image.png");
   const updated = await User.findOneAndUpdate(
     { name: data },
     {
