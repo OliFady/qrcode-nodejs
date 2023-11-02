@@ -65,7 +65,7 @@ router.post("/addscouts", bodyParser.json(), async (req, res) => {
   res.end();
 });
 
-app.listen(8080, () => {
+app.listen(3000, () => {
   mongoose
     .connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
