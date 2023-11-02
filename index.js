@@ -5,7 +5,6 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 const app = express();
-const router = express.Router();
 const Schema = mongoose.Schema;
 const urlencodedParser = bodyParser.text({ type: "*/*" });
 
@@ -22,15 +21,15 @@ if (process.env.NODE_ENV !== "production") {
 
 app.use(cors());
 
-router.get("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-router.get("/api", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("API is working");
 });
 
-router.post("/api", urlencodedParser, async (req, res) => {
+app.post("/api", urlencodedParser, async (req, res) => {
   console.log(req.body);
 
   const data = req.body;
@@ -47,7 +46,7 @@ router.post("/api", urlencodedParser, async (req, res) => {
   res.status(200).contentType("text/plain").end(data);
 });
 
-router.post("/addscouts", bodyParser.json(), async (req, res) => {
+app.post("/addscouts", bodyParser.json(), async (req, res) => {
   console.log(req.body);
 
   const data = req.body;
