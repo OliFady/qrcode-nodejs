@@ -1,18 +1,12 @@
 import express from "express";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import multer from "multer";
-import QrCode from "qrcode-reader";
-import Jimp from "jimp";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
+import bodyParser from "body-parser";
 
-const __filename = fileURLToPath(import.meta.url);
 const app = express();
-const __dirname = path.dirname(__filename);
-const qr = new QrCode();
 const Schema = mongoose.Schema;
+const urlencodedParser = bodyParser.text({ type: "*/*" });
 
 const UserSchema = new Schema({
   name: String,
@@ -25,51 +19,10 @@ if (process.env.NODE_ENV !== "production") {
   dotenv.config();
 }
 
-qr.callback = function (error, result) {
-  if (error) {
-    console.log(error);
-    return;
-  }
-  console.log(result);
-};
-
-const handleError = (err, res) => {
-  res.status(500).contentType("text/plain").end("Oops! Something went wrong!");
-};
-
-const upload = multer({
-  dest: "/tmp",
-});
-
-const readQRCode = async (filePath) => {
-  try {
-    if (fs.existsSync(filePath)) {
-      const img = await Jimp.read(fs.readFileSync(filePath));
-      const qr = new QrCode();
-      const value = await new Promise((resolve, reject) => {
-        qr.callback = (err, v) => (err != null ? reject(err) : resolve(v));
-        qr.decode(img.bitmap);
-      });
-      return value.result;
-    }
-  } catch (error) {
-    return error.message;
-  }
-};
-
-const createTempPath = async (req) => {
-  const tempPath = req.file.path;
-  const targetPath = path.join(__dirname, "/uploads/image.png");
-
-  fs.rename(tempPath, targetPath, (err) => {
-    if (err) return handleError(err, res);
-  });
-};
-
-app.use(express.static(path.join(__dirname, "./public")));
+app.use(cors());
 
 app.get("/", (req, res) => {
-  res.sendFile("index.html");
+  res.send("Hello World!");
 });
 
 app.get("/api", async (req, res) => {
@@ -77,19 +30,39 @@ app.get("/api", async (req, res) => {
   res.send(data);
 });
 
-app.post("/", upload.single("file"), async (req, res) => {
-  await createTempPath(req);
-  const data = await readQRCode("./uploads/image.png");
+app.post("/api", urlencodedParser, async (req, res) => {
+  console.log(req.body);
+
+  const data = req.body;
   const updated = await User.findOneAndUpdate(
     { name: data },
     {
       $inc: { attendance: 1 },
+      $set: { attended_at: Date.now() },
     },
     { new: true }
   );
   console.log(updated);
 
   res.status(200).contentType("text/plain").end(data);
+});
+
+app.post("/addscouts", bodyParser.json(), async (req, res) => {
+  console.log(req.body);
+
+  const data = req.body;
+  const updated = await User.create({
+    name: data.name,
+    grade: data.grade,
+    birthdate: data.birthdate,
+    phone: data.phone,
+    fatherphone: data.fatherphone,
+    motherphone: data.motherphone,
+  });
+  console.log(updated);
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.write(JSON.stringify(data));
+  res.end();
 });
 
 app.listen(8080, () => {
