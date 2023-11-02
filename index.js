@@ -26,8 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api", async (req, res) => {
-  const data = await User.find({ name: data });
-  res.send(data);
+  res.send("API is working");
 });
 
 app.post("/api", urlencodedParser, async (req, res) => {
