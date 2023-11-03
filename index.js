@@ -64,6 +64,28 @@ app.post("/addscouts", bodyParser.json(), async (req, res) => {
   res.end();
 });
 
+app.get("/addattendance", async (req, res) => {
+  const users = await User.find({}, "name attendance");
+  res.send(users);
+});
+
+app.post("/addattendance", bodyParser.json(), async (req, res) => {
+  console.log(req.body);
+
+  const data = req.body;
+  const updated = await User.findOneAndUpdate(
+    { name: data.name },
+    {
+      $inc: { attendance: 1 },
+    },
+    { new: true }
+  );
+  console.log(updated);
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.write(JSON.stringify(data));
+  res.end();
+});
+
 app.listen(process.env.PORT || 8080, () => {
   mongoose
     .connect(process.env.MONGO_URI, {
