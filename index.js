@@ -11,6 +11,12 @@ const urlencodedParser = bodyParser.text({ type: "*/*" });
 const UserSchema = new Schema({
   name: String,
   attendance: Number,
+  attended_at: [
+    {
+      type: Date,
+      default: Date.now,
+    },
+  ],
 });
 
 const User = mongoose.model("User", UserSchema);
@@ -30,26 +36,26 @@ app.get("/api", (req, res) => {
 });
 
 app.post("/api", urlencodedParser, async (req, res) => {
-  console.log(req.body);
-
   const data = req.body;
+  const date = new Date();
+
   const updated = await User.findOneAndUpdate(
     { name: data },
     {
       $inc: { attendance: 1 },
-      $set: { attended_at: Date.now() },
     },
-    { new: true }
+    { upsert: true }
   );
-  console.log(updated);
+  const attendance = await User.findOne({ name: data });
+  attendance.attended_at.push(date);
+  attendance.save();
 
   res.status(200).contentType("text/plain").end(data);
 });
 
 app.post("/addscouts", bodyParser.json(), async (req, res) => {
-  console.log(req.body);
-
   const data = req.body;
+
   const updated = await User.create({
     name: data.name,
     grade: data.grade,
@@ -58,7 +64,7 @@ app.post("/addscouts", bodyParser.json(), async (req, res) => {
     fatherphone: data.fatherphone,
     motherphone: data.motherphone,
   });
-  console.log(updated);
+
   res.writeHead(200, { "Content-Type": "application/json" });
   res.write(JSON.stringify(data));
   res.end();
@@ -70,17 +76,17 @@ app.get("/addattendance", async (req, res) => {
 });
 
 app.post("/addattendance", bodyParser.json(), async (req, res) => {
-  console.log(req.body);
-
   const data = req.body;
+
   const updated = await User.findOneAndUpdate(
     { name: data.name },
     {
       $inc: { attendance: 1 },
+      $add: { attended_at: Date.now() },
     },
     { new: true }
   );
-  console.log(updated);
+
   res.writeHead(200, { "Content-Type": "application/json" });
   res.write(JSON.stringify(data));
   res.end();
