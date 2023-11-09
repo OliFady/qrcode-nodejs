@@ -82,10 +82,13 @@ app.post("/addattendance", bodyParser.json(), async (req, res) => {
     { name: data.name },
     {
       $inc: { attendance: 1 },
-      $add: { attended_at: Date.now() },
     },
     { new: true }
   );
+
+  const attendance = await User.findOne({ name: data });
+  attendance.attended_at.push(date);
+  attendance.save();
 
   res.writeHead(200, { "Content-Type": "application/json" });
   res.write(JSON.stringify(data));
