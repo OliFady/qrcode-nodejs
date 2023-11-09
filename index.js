@@ -86,7 +86,7 @@ app.post("/addattendance", bodyParser.json(), async (req, res) => {
     { new: true }
   );
 
-  const attendance = await User.findOne({ name: data });
+  const attendance = await User.findOne({ name: data.name });
   attendance.attended_at.push(date);
   attendance.save();
 
